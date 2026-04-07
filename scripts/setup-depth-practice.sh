@@ -94,10 +94,12 @@ echo "Copying command scripts..."
 
 cp "$SCRIPT_DIR/morning-template.sh" "$PROJECT_DIR/scripts/morning.sh"
 cp "$SCRIPT_DIR/evening-template.sh" "$PROJECT_DIR/scripts/evening.sh"
+cp "$SCRIPT_DIR/midday-template.sh" "$PROJECT_DIR/scripts/midday.sh"
 cp "$SCRIPT_DIR/sunday-template.sh" "$PROJECT_DIR/scripts/sunday.sh"
 
 chmod +x "$PROJECT_DIR/scripts/morning.sh"
 chmod +x "$PROJECT_DIR/scripts/evening.sh"
+chmod +x "$PROJECT_DIR/scripts/midday.sh"
 chmod +x "$PROJECT_DIR/scripts/sunday.sh"
 
 # --- Fill command-context.md ---
@@ -244,7 +246,8 @@ ALIAS_BLOCK="
 export DEPTH_PROJECT=\"$PROJECT_DIR\"
 alias morning=\"bash \$DEPTH_PROJECT/scripts/morning.sh\"
 alias evening=\"bash \$DEPTH_PROJECT/scripts/evening.sh\"
-alias sunday=\"bash \$DEPTH_PROJECT/scripts/sunday.sh\"  # manual override — morning handles Sundays automatically"
+alias midday=\"bash \$DEPTH_PROJECT/scripts/midday.sh\"    # optional — catches entries logged between morning and evening
+alias sunday=\"bash \$DEPTH_PROJECT/scripts/sunday.sh\"    # manual override — morning handles Sundays automatically"
 
 # Check if aliases already exist
 if grep -q "# Depth practice commands" "$SHELL_RC" 2>/dev/null; then
@@ -278,8 +281,12 @@ echo ""
 echo "  4. In the evening after your evening pull, run:"
 echo "       evening"
 echo ""
+echo "  Optional: if you log entries midday and want them interpreted before evening:"
+echo "       midday"
+echo ""
 echo "  On Sundays, morning automatically includes the weekly synthesis,"
 echo "  forecast, and thread refresh. If you skip morning, evening picks it up."
+echo "  On the 1st of the month, morning writes the monthly synthesis and forecast."
 echo "  The 'sunday' command is available as a manual override if you ever need it."
 echo ""
 echo "  6. To customize the practice voice, interpretation style, or add natal"

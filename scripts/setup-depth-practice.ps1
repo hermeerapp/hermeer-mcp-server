@@ -101,11 +101,13 @@ if (-not (Test-Path "$templateSource\morning-template.ps1")) {
     $baseUrl = "https://raw.githubusercontent.com/hermeerapp/hermeer-mcp-server/main/scripts"
     Invoke-WebRequest -Uri "$baseUrl/morning-template.ps1" -OutFile "$projectDir\scripts\morning.ps1"
     Invoke-WebRequest -Uri "$baseUrl/evening-template.ps1" -OutFile "$projectDir\scripts\evening.ps1"
+    Invoke-WebRequest -Uri "$baseUrl/midday-template.ps1" -OutFile "$projectDir\scripts\midday.ps1"
     Invoke-WebRequest -Uri "$baseUrl/sunday-template.ps1" -OutFile "$projectDir\scripts\sunday.ps1"
     Invoke-WebRequest -Uri "$baseUrl/command-context-template.md" -OutFile "$projectDir\scripts\command-context.md"
 } else {
     Copy-Item "$templateSource\morning-template.ps1" "$projectDir\scripts\morning.ps1"
     Copy-Item "$templateSource\evening-template.ps1" "$projectDir\scripts\evening.ps1"
+    Copy-Item "$templateSource\midday-template.ps1" "$projectDir\scripts\midday.ps1"
     Copy-Item "$templateSource\sunday-template.ps1" "$projectDir\scripts\sunday.ps1"
     Copy-Item "$templateSource\command-context-template.md" "$projectDir\scripts\command-context.md"
 }
@@ -245,7 +247,8 @@ $functionBlock = @"
 `$env:DEPTH_PROJECT = "$projectDir"
 function morning { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\morning.ps1" }
 function evening { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\evening.ps1" }
-function sunday { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\sunday.ps1" }  # manual override — morning handles Sundays automatically
+function midday { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\midday.ps1" }   # optional — catches entries logged between morning and evening
+function sunday { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\sunday.ps1" }   # manual override — morning handles Sundays automatically
 "@
 
 # Check if functions already exist in profile
@@ -286,8 +289,12 @@ Write-Host ""
 Write-Host "  4. In the evening after your evening pull, run:"
 Write-Host "       evening" -ForegroundColor Yellow
 Write-Host ""
+Write-Host "  Optional: if you log entries midday and want them interpreted before evening:"
+Write-Host "       midday" -ForegroundColor Yellow
+Write-Host ""
 Write-Host "  On Sundays, morning automatically includes the weekly synthesis,"
 Write-Host "  forecast, and thread refresh. If you skip morning, evening picks it up."
+Write-Host "  On the 1st of the month, morning writes the monthly synthesis and forecast."
 Write-Host "  The 'sunday' command is available as a manual override if you ever need it."
 Write-Host ""
 Write-Host "  6. To customize the practice voice, interpretation style, or add natal"

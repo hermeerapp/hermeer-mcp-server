@@ -1,9 +1,10 @@
 # morning — one-command daily depth briefing
-# Reads today's entries, interprets them, writes interpretations. Zero approvals.
+# Reads today's entries, interprets them, writes all depth content. Zero approvals.
+# On Sundays: adds weekly synthesis, forecast, and thread refresh.
+# On the 1st: adds monthly synthesis and forecast.
 
 $DepthProject = if ($env:DEPTH_PROJECT) { $env:DEPTH_PROJECT } else { "$HOME\depth-practice" }
 $HermeerBase = if ($env:HERMEER_BASE) { $env:HERMEER_BASE } else {
-    # Try common Windows sync locations in order
     $icloud = "$env:USERPROFILE\iCloudDrive\HermeerSync"
     $onedrive = "$env:USERPROFILE\OneDrive\HermeerSync"
     $googledrive = "G:\My Drive\HermeerSync"
@@ -13,13 +14,13 @@ $HermeerBase = if ($env:HERMEER_BASE) { $env:HERMEER_BASE } else {
     else { "$env:USERPROFILE\HermeerSync" }
 }
 $BriefingDir = "$DepthProject\logs\briefings"
+$AppBriefingDir = "$HermeerBase\depth\briefings"
 
 Set-Location $DepthProject
 
-# Create briefing directory if it doesn't exist
 New-Item -ItemType Directory -Force -Path $BriefingDir | Out-Null
+New-Item -ItemType Directory -Force -Path $AppBriefingDir | Out-Null
 
-# Run transit watcher first if it exists
 $transitWatcher = "$DepthProject\scripts\transit_watcher.py"
 if (Test-Path $transitWatcher) {
     python3 $transitWatcher 2>$null
@@ -35,32 +36,71 @@ claude -p `
   "Morning briefing. Do these steps:
 
 0. SHARED CONTEXT: Read $DepthProject\scripts\command-context.md first — it contains birth data, rules, and common procedures that apply to all commands. Follow everything in that file.
-1. Read HermeerSync/state/current-state.md (at $HermeerBase\state\current-state.md)
-1b. Read the transit watch report at $DepthProject\logs\transit-watch-today.md if it exists — this has precise current transit data calculated from a real ephemeris. Use this for transit connections in interpretations rather than the app's simpler transit list. Pay special attention to exact transits (within 1 degree) and any day-over-day changes.
-2. Find today's entries — check $HermeerBase\tarot\, $HermeerBase\dreams\, $HermeerBase\journal\, $HermeerBase\sessions\, and $HermeerBase\synchronicities\ for files starting with today's date
-2b. Run the iCloud Sync Check per command-context.md — cross-reference directory results against the state file's 'Last 7 Days' section. Flag any entries the state file shows that haven't synced.
-3. Read every new entry file
-4. For any entry WITHOUT an existing interpretation in $HermeerBase\depth\: interpret it fully per the Interpretation Depth rules in command-context.md. Write each interpretation to the appropriate subdirectory under $HermeerBase\depth\ (tarot\, dreams\, journal\, sessions\, synchronicities\).
-5. CATCH-UP SWEEP: 7-day window per command-context.md.
-6. INTERPRETATION REQUESTS: Per command-context.md.
-7. FIELD READING: Per command-context.md.
-7b. THREAD NOTE RESPONSES: Per command-context.md.
-7c. MOON NOTE RESPONSES: Per command-context.md.
-7d. MONTHLY SYNTHESIS: If today is the 1st of the month, write the monthly synthesis per command-context.md.
-8. Give the practitioner the morning briefing: the interpretation(s), what's alive today, what threads are active, what's worth sitting with. Use the practitioner's name from command-context.md — never 'user.'
-9. SUNDAY WEEKLY WORK: Check what day of the week it is. If today is Sunday, also do these steps:
-   a. THREAD FRESHNESS CHECK: Per command-context.md. Scan all thread files, compare practice narrative against actual counts, regenerate stale threads.
-   b. WEEKLY SYNTHESIS: Per command-context.md. Write the depth-level synthesis for the closing week (Monday through today).
-   c. WEEKLY FORECAST: Per command-context.md. Write the depth-level forecast for the coming week (tomorrow's Monday through next Sunday). Use the transit watcher data for real planetary positions.
+
+1. READ THE FIELD:
+   - Read HermeerSync/state/current-state.md (at $HermeerBase\state\current-state.md)
+   - Read the transit watch report at $DepthProject\logs\transit-watch-today.md if it exists — precise ephemeris transit data. Use this for transit connections rather than the app's simpler transit list. Pay special attention to exact transits (within 1 degree).
+
+2. FIND AND READ ENTRIES:
+   - Check $HermeerBase\tarot\, $HermeerBase\dreams\, $HermeerBase\journal\, $HermeerBase\sessions\, and $HermeerBase\synchronicities\ for files starting with today's date.
+   - Run the iCloud Sync Check per command-context.md — cross-reference directory results against the state file. Flag any entries that haven't synced.
+   - Read every new entry file.
+
+3. INTERPRET:
+   - For any entry WITHOUT an existing interpretation in $HermeerBase\depth\: interpret it fully per the Interpretation Depth rules in command-context.md. Write each interpretation to the appropriate subdirectory under $HermeerBase\depth\ (tarot\, dreams\, journal\, sessions\, synchronicities\, transits\, charts\).
+   - CATCH-UP SWEEP: 7-day window per command-context.md.
+
+4. PROCESS REQUESTS:
+   - INTERPRETATION REQUESTS: Per command-context.md. Check $HermeerBase\requests\ for pending requests.
+
+5. FIELD READING: Per command-context.md. Write to $HermeerBase\depth\field\.
+
+6. RESPOND TO NOTES:
+   - THREAD NOTE RESPONSES: Per command-context.md. Scan $HermeerBase\depth\thread-notes\.
+   - MOON NOTE RESPONSES: Per command-context.md. Scan $HermeerBase\depth\moon-notes\.
+   - INTERPRETATION NOTE RESPONSES: Per command-context.md. Scan $HermeerBase\depth\interpretation-notes\ for unanswered notes. For each: read the corresponding interpretation, read the note, respond using the ## [Date] — Depth Companion heading format. If a factual error is flagged, correct the source interpretation too. Report count in Operations.
+
+7. MONTHLY WORK (1st of the month only):
+   - If today is the 1st, write the monthly synthesis per command-context.md.
+   - If today is the 1st, write a monthly forecast to $HermeerBase\depth\forecasts\monthly-YYYY-MM.md where YYYY-MM is the current month. Same frontmatter pattern as weekly forecast but with type: monthly-forecast. Content: the month ahead — real transit data, active threads, what's building, what's completing, questions for the month.
+
+8. SUNDAY WEEKLY WORK (Sundays only):
+   - If today is Sunday:
+   a. THREAD FRESHNESS CHECK: Per command-context.md.
+   b. WEEKLY SYNTHESIS: Per command-context.md.
+   c. WEEKLY FORECAST: Per command-context.md.
    d. Report all Sunday work in the Operations section.
-10. SESSION FLAG: After the briefing, assess whether any thread has reached a point that exceeds what daily interpretation can hold. Signs: a card appearing 5+ times, a dream that breaks a pattern, a transit hitting exact, a thread resurfacing in the cards, something the practitioner is circling without naming directly. If so, end the briefing with: 'This thread needs a live session: [thread name] — [why]'.
-11. SAVE THE BRIEFING: Write the full briefing text to $BriefingDir\$today-morning.md. Frontmatter:
+
+9. ARCS: If a thematic arc has developed over multiple days or weeks — a transit passage, a recurring card, a dream sequence, a thread reaching a turning point — write a narrative arc to $HermeerBase\depth\arcs\. Frontmatter:
 ---
-date: $today
+type: narrative-arc
+arc_type: [transit | card-sequence | dream-arc | thread-arc | season]
+title: `"[descriptive title]`"
+period: `"[start] through [end]`"
+generated: `"[ISO timestamp]`"
+themes: [2-5 canonical themes]
+---
+Content: the arc's story — what opened it, what sustained it, where it is now, what it's becoming. Only write an arc when the material genuinely warrants it — not every day. Check $HermeerBase\depth\arcs\ for existing arcs and update rather than duplicate.
+
+10. SESSION FLAG: Assess whether any thread has reached a point that exceeds what daily interpretation can hold. Signs: a card appearing 5+ times, a dream that breaks a pattern, a transit hitting exact, a thread resurfacing in the cards, something the practitioner is circling without naming directly. If so, end the briefing with: 'This thread needs a live session: [thread name] — [why]'.
+
+11. BRIEFING:
+    Give the practitioner the morning briefing: the interpretation(s), what's alive today, what threads are active, what's worth sitting with. Use the practitioner's name from command-context.md — never 'user.'
+
+12. SAVE THE BRIEFING:
+    Write the briefing to TWO locations:
+    a. $BriefingDir\$today-morning.md (local archive — read by evening command)
+    b. $AppBriefingDir\$today-morning.md (app-visible — appears in Hermeer)
+    Both files must have this frontmatter:
+---
+type: briefing
 command: morning
-tags: [briefing, daily]
+date: $today
+generated: `"[ISO timestamp]`"
+provider: `"depth-companion`"
 ---
-This file will be read by the evening command so it can build on what you observed. Write it the same way you'd speak it — this is the morning's reading of the field.
-Include the ## Operations section per command-context.md. If today is Sunday, include the weekly synthesis/forecast/thread refresh results.
+    If today is Sunday, add a landing field with a one-sentence snippet for the app's landing screen:
+    landing: `"[One sentence — the week's essential signal. Under 120 characters.]`"
+    Include the ## Operations section per command-context.md. If today is Sunday, include weekly synthesis/forecast/thread refresh results. If today is the 1st, include monthly synthesis/forecast results.
 
 Morning is the first reading of the day. The field is fresh. Name what's alive. Be concise but let it breathe when the material demands it."
