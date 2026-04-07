@@ -245,7 +245,7 @@ $functionBlock = @"
 `$env:DEPTH_PROJECT = "$projectDir"
 function morning { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\morning.ps1" }
 function evening { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\evening.ps1" }
-function sunday { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\sunday.ps1" }
+function sunday { powershell -ExecutionPolicy Bypass -File "`$env:DEPTH_PROJECT\scripts\sunday.ps1" }  # manual override — morning handles Sundays automatically
 "@
 
 # Check if functions already exist in profile
@@ -286,8 +286,9 @@ Write-Host ""
 Write-Host "  4. In the evening after your evening pull, run:"
 Write-Host "       evening" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "  5. On Sunday evenings, run the weekly panoramic reading:"
-Write-Host "       sunday" -ForegroundColor Yellow
+Write-Host "  On Sundays, morning automatically includes the weekly synthesis,"
+Write-Host "  forecast, and thread refresh. If you skip morning, evening picks it up."
+Write-Host "  The 'sunday' command is available as a manual override if you ever need it."
 Write-Host ""
 Write-Host "  6. To customize the practice voice, interpretation style, or add natal"
 Write-Host "     chart placements, edit: $projectDir\scripts\command-context.md"

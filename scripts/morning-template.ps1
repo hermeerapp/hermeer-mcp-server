@@ -48,14 +48,19 @@ claude -p `
 7c. MOON NOTE RESPONSES: Per command-context.md.
 7d. MONTHLY SYNTHESIS: If today is the 1st of the month, write the monthly synthesis per command-context.md.
 8. Give the practitioner the morning briefing: the interpretation(s), what's alive today, what threads are active, what's worth sitting with. Use the practitioner's name from command-context.md — never 'user.'
-9. SESSION FLAG: After the briefing, assess whether any thread has reached a point that exceeds what daily interpretation can hold. Signs: a card appearing 5+ times, a dream that breaks a pattern, a transit hitting exact, a thread resurfacing in the cards, something the practitioner is circling without naming directly. If so, end the briefing with: 'This thread needs a live session: [thread name] — [why]'.
-10. SAVE THE BRIEFING: Write the full briefing text to $BriefingDir\$today-morning.md. Frontmatter:
+9. SUNDAY WEEKLY WORK: Check what day of the week it is. If today is Sunday, also do these steps:
+   a. THREAD FRESHNESS CHECK: Per command-context.md. Scan all thread files, compare practice narrative against actual counts, regenerate stale threads.
+   b. WEEKLY SYNTHESIS: Per command-context.md. Write the depth-level synthesis for the closing week (Monday through today).
+   c. WEEKLY FORECAST: Per command-context.md. Write the depth-level forecast for the coming week (tomorrow's Monday through next Sunday). Use the transit watcher data for real planetary positions.
+   d. Report all Sunday work in the Operations section.
+10. SESSION FLAG: After the briefing, assess whether any thread has reached a point that exceeds what daily interpretation can hold. Signs: a card appearing 5+ times, a dream that breaks a pattern, a transit hitting exact, a thread resurfacing in the cards, something the practitioner is circling without naming directly. If so, end the briefing with: 'This thread needs a live session: [thread name] — [why]'.
+11. SAVE THE BRIEFING: Write the full briefing text to $BriefingDir\$today-morning.md. Frontmatter:
 ---
 date: $today
 command: morning
 tags: [briefing, daily]
 ---
 This file will be read by the evening command so it can build on what you observed. Write it the same way you'd speak it — this is the morning's reading of the field.
-Include the ## Operations section per command-context.md.
+Include the ## Operations section per command-context.md. If today is Sunday, include the weekly synthesis/forecast/thread refresh results.
 
 Morning is the first reading of the day. The field is fresh. Name what's alive. Be concise but let it breathe when the material demands it."
