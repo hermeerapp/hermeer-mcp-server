@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.hermeerapp.decrypt-daemon</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/env</string>
+        <string>python3</string>
+        <string>/Users/osterkg/projects/thwelthhousemouse/scripts/hermeer-decrypt-daemon.py</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HERMEER_BASE</key>
+        <string>/Users/osterkg/.hermeer-local/</string>
+    </dict>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/osterkg/.hermeer-local/logs/decrypt-daemon.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/osterkg/.hermeer-local/logs/decrypt-daemon-error.log</string>
+</dict>
+</plist>
