@@ -306,7 +306,7 @@ export function registerWriteTools(server: McpServer, base: string): void {
     "Writes a companion briefing (morning, evening, Sunday, or custom prose). Briefings are cross-session — evening can reference what morning said.",
     {
       command: z
-        .enum(["morning", "evening", "sunday", "custom"])
+        .enum(["morning", "evening", "midday", "sunday", "custom"])
         .describe("Which command produced this briefing"),
       content: z.string().describe("The briefing prose (body only, no frontmatter)"),
       landing: z.string().optional().describe("One sentence (max 200 chars) for the app's landing screen. The first thing the practitioner sees when they open the app. Make it count."),
@@ -341,7 +341,7 @@ export function registerWriteTools(server: McpServer, base: string): void {
   // 7. write_forecast
   server.tool(
     "write_forecast",
-    "Writes a weekly forecast file.",
+    "Writes a weekly or monthly forecast file.",
     {
       period: z.string().describe('Human-readable period, e.g. "March 24 through March 30, 2026"'),
       content: z.string().describe("Forecast text"),
@@ -350,10 +350,16 @@ export function registerWriteTools(server: McpServer, base: string): void {
         .min(2)
         .max(5)
         .describe("2-5 canonical themes"),
-      period_date: z.string().describe("Monday date of the forecast week (YYYY-MM-DD)"),
+      period_date: z.string().describe("For weekly: Monday date (YYYY-MM-DD). For monthly: first of month (YYYY-MM-DD)."),
+      forecast_type: z
+        .enum(["weekly", "monthly"])
+        .default("weekly")
+        .describe("Type of forecast — weekly or monthly"),
     },
-    async ({ period, content, themes, period_date }) => {
-      const filename = `weekly-${period_date}.md`;
+    async ({ period, content, themes, period_date, forecast_type }) => {
+      const prefix = forecast_type === "monthly" ? "monthly" : "weekly";
+      const datePart = forecast_type === "monthly" ? period_date.substring(0, 7) : period_date;
+      const filename = `${prefix}-${datePart}.md`;
       const targetPath = join(base, "depth", "forecasts", filename);
       const relativePath = `depth/forecasts/${filename}`;
 
@@ -370,7 +376,7 @@ export function registerWriteTools(server: McpServer, base: string): void {
       }
 
       const fm = buildFrontmatter({
-        type: "weekly-forecast",
+        type: `${prefix}-forecast`,
         period,
         generated: nowISO(),
         provider: "depth-companion",
@@ -382,7 +388,7 @@ export function registerWriteTools(server: McpServer, base: string): void {
       const fileContent = fm + "\n\n" + content.trim() + "\n";
       await atomicWrite(targetPath, fileContent);
 
-      return toolSuccess(relativePath, "Weekly forecast written.");
+      return toolSuccess(relativePath, `${forecast_type.charAt(0).toUpperCase() + forecast_type.slice(1)} forecast written.`);
     },
   );
 }
